@@ -5,11 +5,15 @@
 *.egg-info
 dist
 build
-/__pycache__/*
+__pycache__/
 
 # virtual enviornment
 /.env/*
 /.idea/*
+.venv/
+
+# local environment variables (keep .env.example tracked)
+.env
 
 # models
 checkpoints/
@@ -17,3 +21,6 @@ checkpoints/
 /checkpoints/deepsc-mi-awgn/*
 /checkpoints/deepsc-mi/Rayleigh/*
 /checkpoints/deepsc-Rayleigh/* 
+
+# Mac
+.DS_Store
