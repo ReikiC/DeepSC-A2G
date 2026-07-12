@@ -14,6 +14,7 @@ from dataset import EurDataset, collate_data
 from models.transceiver import DeepSC
 from torch.utils.data import DataLoader
 from utils import BleuScore, SNR_to_noise, greedy_decode, SeqtoText
+from config import DATA_DIR
 from tqdm import tqdm
 from sklearn.preprocessing import normalize
 # from bert4keras.backend import keras
@@ -160,7 +161,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     SNR = [0,3,6,9,12,15,18]
 
-    args.vocab_file = '/import/antennas/Datasets/hx301/' + args.vocab_file
+    args.vocab_file = DATA_DIR + args.vocab_file
     vocab = json.load(open(args.vocab_file, 'rb'))
     token_to_idx = vocab['token_to_idx']
     idx_to_token = dict(zip(token_to_idx.values(), token_to_idx.keys()))

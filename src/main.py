@@ -15,6 +15,7 @@ import numpy as np
 from utils import SNR_to_noise, initNetParams, train_step, val_step, train_mi
 from dataset import EurDataset, collate_data
 from models.transceiver import DeepSC
+from config import DATA_DIR
 from models.mutual_info import Mine
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -99,7 +100,7 @@ def train(epoch, args, net, mi_net=None):
 if __name__ == '__main__':
     # setup_seed(10)
     args = parser.parse_args()
-    args.vocab_file = '/import/antennas/Datasets/hx301/' + args.vocab_file
+    args.vocab_file = DATA_DIR + args.vocab_file
     """ preparing the dataset """
     vocab = json.load(open(args.vocab_file, 'rb'))
     token_to_idx = vocab['token_to_idx']
