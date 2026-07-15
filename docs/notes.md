@@ -3,6 +3,13 @@
 > 目标:从最底层到最顶层,把每一段代码、每一个函数都扒清楚,建立对整个项目的完整心智模型。
 > 代码库:PyTorch 实现 "Deep Learning Enabled Semantic Communication Systems" (Xie et al., IEEE TSP 2021)。
 
+> 🔧 **结构重构说明(2026-07-15)**:本笔记正文描述的是**重构前**的平铺布局。代码现已收敛为可安装包 `src/deepsc/`、入口脚本移到 `scripts/`。旧→新映射:
+> - `utils.py`(395 行杂物间)拆解 → `deepsc/channels/`(AWGN/Rayleigh/Rician + `apply_channel()` 单一分发)、`deepsc/training/`(engine/losses/optim)、`deepsc/decoding.py`、`deepsc/metrics.py`、`deepsc/signal.py`、`deepsc/models/masking.py`
+> - `models/transceiver.py` 拆成 `deepsc/models/transformer.py`(通用 Transformer 块)+ `transceiver.py`(DeepSC 装配)
+> - 入口:`main.py`→`scripts/train.py`、`performance.py`→`scripts/evaluate.py`、`preprocess_text.py`→`scripts/preprocess.py`;`dataset.py`+`SeqtoText`→`deepsc/data/`;`config.py`→`deepsc/config.py`(3 处重复的 `device` 全局也收敛到此)
+> - 4 处硬编码 `if channel==...` 已合并为单一 `apply_channel(name, tx, n_var)`,将来加 A2G 信道只需 `register("A2G", A2G())`,不动任何调用点
+> - ⚠️ 下面正文里的 `src/xxx.py#L行号` 链接是**重构前的历史路径**(清理代码后行号也已过时);**函数名与行为描述仍然准确**,文件位置以上面映射为准。
+
 ---
 
 ## 目录
@@ -76,19 +83,20 @@ flowchart LR
 `DeepSC` 这个类 **没有 `forward()` 方法**([transceiver.py:263](../src/models/transceiver.py#L263))。
 整条前向流是在 `utils.py` 的 `train_step / val_step / greedy_decode` 里**手动编排**的。"模型"其实是个装子模块的容器,数据流写死在训练函数里。
 
-### 0.4 文件分层(依赖方向:上依赖下)
+### 0.4 包结构(重构后;依赖方向:上依赖下)
 
 ```
-入口层    main.py (训练)            performance.py (评估: BLEU vs SNR)
-            │                            │
-胶水层    ──────────────── utils.py ────────────────
-          (Channels / 掩码 / loss / train_step / greedy_decode / SNR 换算)
-            │                            │
-网络层    models/transceiver.py        models/mutual_info.py
-          (Transformer + 信道编解码)    (MINE 互信息估计)
+入口层    scripts/train.py(训练)  scripts/evaluate.py(评估)  scripts/quick_eval.py
+            │                         │
+胶水层    deepsc/training/engine.py   deepsc/decoding.py
+          (train_step/val_step/train_mi)   (greedy_decode)
+            └── 两处都调 apply_channel(name, tx, n_var) ──┐
+            │                                            │
+信道层    ◀──────── deepsc/channels/(AWGN/Rayleigh/Rician + 分发) ──┘
             │
-数据层    dataset.py  ←  preprocess_text.py  ←  config.py
-          (EurDataset)   (语料→vocab+pkl)      (读 .env)
+网络层    deepsc/models/  transformer.py(通用块)+ transceiver.py(DeepSC)+ mutual_info.py(MINE)
+            │
+数据层    deepsc/data/dataset.py(EurDataset/SeqtoText) · scripts/preprocess.py · deepsc/config.py(DATA_DIR+device)
 ```
 
 ```mermaid

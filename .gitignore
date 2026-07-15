@@ -27,3 +27,6 @@ checkpoints/
 
 # datasets (raw corpus + preprocessed artifacts)
 /data/
+
+# figures
+/figures/
