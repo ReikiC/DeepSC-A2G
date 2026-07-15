@@ -14,6 +14,7 @@ dependencies = [
     "scikit-learn",
     "bert4keras==0.11.5",
     "python-dotenv",
+    "matplotlib>=3.11.0",
 ]
 
 [tool.uv]

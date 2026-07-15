@@ -12,4 +12,4 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Root directory holding the europarl/ data. Keep the trailing slash.
-DATA_DIR = os.environ.get('DATA_DIR', '/import/antennas/Datasets/hx301/')
+DATA_DIR = os.environ.get('DATA_DIR')

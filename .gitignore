@@ -24,3 +24,6 @@ checkpoints/
 
 # Mac
 .DS_Store
+
+# datasets (raw corpus + preprocessed artifacts)
+/data/
